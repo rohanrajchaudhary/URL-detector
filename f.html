@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image URL Fraud Detector</title>
+    <script src="https://unpkg.com/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #ff0000, #990000, #660000);
+            color: white;
+            min-height: 100vh;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+        input[type="file"] {
+            margin: 10px 0;
+            background: rgba(255,255,255,0.8);
+            padding: 8px;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #ff3333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            background-color: #ff0000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        #preview {
+            margin: 10px 0;
+            max-width: 100%;
+            border: 3px solid rgba(255,255,255,0.5);
+            border-radius: 5px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .safe {
+            background: linear-gradient(135deg, #e6ffe6, #c3e6cb);
+            border: 1px solid #28a745;
+        }
+        .warning {
+            background: linear-gradient(135deg, #fff3e6, #ffe0cc);
+            border: 1px solid #fd7e14;
+        }
+        .danger {
+            background: linear-gradient(135deg, #ffe6e6, #f5c6cb);
+            border: 1px solid #dc3545;
+        }
+        p {
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <h1>Image URL Fraud Detector</h1>
+    <p>Upload an image containing a URL to check if it's legitimate:</p>
+    <input type="file" id="imageInput" accept="image/*" onchange="previewImage()">
+    <br>
+    <img id="preview" alt="Image Preview" style="display: none;">
+    <br>
+    <button onclick="processImage()">Check URL</button>
+    <div id="result"></div>
+
+    <script>
+        function previewImage() {
+            const file = document.getElementById('imageInput').files[0];
+            const preview = document.getElementById('preview');
+            const resultDiv = document.getElementById('result');
+
+            resultDiv.style.display = 'none';
+            resultDiv.innerHTML = '';
+
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        async function processImage() {
+            const file = document.getElementById('imageInput').files[0];
+            const resultDiv = document.getElementById('result');
+
+            if (!file) {
+                alert('Please upload an image first');
+                return;
+            }
+
+            resultDiv.innerHTML = 'Processing image...';
+            resultDiv.style.display = 'block';
+
+            try {
+                // Use Tesseract.js to extract text from the image
+                const { data: { text } } = await Tesseract.recognize(file, 'eng');
+                
+                // Extract URL from text using a simple regex
+                const urlRegex = /(https?:\/\/[^\s]+)/g;
+                const urls = text.match(urlRegex);
+
+                if (!urls || urls.length === 0) {
+                    resultDiv.innerHTML = 'No URL found in the image';
+                    resultDiv.className = 'warning';
+                    return;
+                }
+
+                // Check the first URL found
+                const url = urls[0];
+                const result = await analyzeURL(url);
+                displayResult(url, result);
+            } catch (error) {
+                resultDiv.innerHTML = `Error processing image: ${error.message}`;
+                resultDiv.className = 'danger';
+                resultDiv.style.display = 'block';
+            }
+        }
+
+        async function analyzeURL(url) {
+            try {
+                // Basic URL validation
+                new URL(url);
+
+                // Simple heuristic checks
+                const checks = {
+                    hasHttps: url.startsWith('https://'),
+                    suspiciousKeywords: ['login', 'password', 'verify', 'account', 'bank'].some(keyword => 
+                        url.toLowerCase().includes(keyword)),
+                    unusualCharacters: /[^a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]/.test(url),
+                    length: url.length > 100,
+                    domainParts: url.split('.').length - 1
+                };
+
+                // Basic scoring system
+                let riskScore = 0;
+                if (!checks.hasHttps) riskScore += 30;
+                if (checks.suspiciousKeywords) riskScore += 20;
+                if (checks.unusualCharacters) riskScore += 25;
+                if (checks.length) riskScore += 15;
+                if (checks.domainParts > 3) riskScore += 20;
+
+                let status, message;
+                if (riskScore < 30) {
+                    status = 'safe';
+                    message = 'This URL appears to be safe';
+                } else if (riskScore < 60) {
+                    status = 'warning';
+                    message = 'This URL is potentially suspicious';
+                } else {
+                    status = 'danger';
+                    message = 'This URL has a high risk of being fraudulent';
+                }
+
+                return { status, message, details: checks };
+            } catch (error) {
+                return {
+                    status: 'danger',
+                    message: 'Invalid URL format',
+                    details: { error: error.message }
+                };
+            }
+        }
+
+        function displayResult(url, result) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = result.status;
+            
+            let details = '';
+            if (result.details.error) {
+                details = `<br><small>Error: ${result.details.error}</small>`;
+            } else {
+                details = `<br><small>
+                    HTTPS: ${result.details.hasHttps ? 'Yes' : 'No'} |
+                    Suspicious keywords: ${result.details.suspiciousKeywords ? 'Yes' : 'No'} |
+                    Unusual characters: ${result.details.unusualCharacters ? 'Yes' : 'No'} |
+                    Length > 100: ${result.details.length ? 'Yes' : 'No'} |
+                    Subdomains: ${result.details.domainParts}
+                </small>`;
+            }
+
+            resultDiv.innerHTML = `<strong>${url}</strong><br>${result.message}${details}`;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
