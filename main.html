@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6th Semester Project</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            text-align: center;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem 3rem;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .team-members {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .member {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            width: 200px;
+            transition: all 0.3s ease;
+            animation: slideUp 0.8s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .member:hover {
+            transform: translateY(-10px);
+            background-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .member:nth-child(1) { animation-delay: 0.2s; }
+        .member:nth-child(2) { animation-delay: 0.4s; }
+        .member:nth-child(3) { animation-delay: 0.6s; }
+        .member:nth-child(4) { animation-delay: 0.8s; }
+
+        .member i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* Animated Gradient Button */
+        .next-btn {
+            position: relative;
+            display: inline-block;
+            padding: 18px 36px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 50px;
+            overflow: hidden;
+            z-index: 1;
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-top: 1rem;
+        }
+        
+        .next-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee, #fbc2eb, #fad0c4, #ff9a9e);
+            background-size: 400% 400%;
+            border-radius: 50px;
+            z-index: -1;
+            animation: gradientBG 8s ease infinite;
+            transition: all 0.4s ease;
+        }
+        
+        .next-btn:hover::before {
+            animation: gradientBG 4s ease infinite;
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        
+        .next-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .next-btn i {
+            margin-left: 10px;
+            transition: transform 0.3s;
+        }
+        
+        .next-btn:hover i {
+            transform: translateX(5px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            .container { padding: 1.5rem; }
+            .member { width: 100%; }
+            .next-btn { padding: 14px 28px; font-size: 16px; }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-users"></i> 6th Semester Project Team</h1>
+        
+        <div class="team-members">
+            <div class="member">
+                <i class="fas fa-user-tie"></i>
+                <h3>DEVRAJ GANGOLI 
+                </h3>
+                <p>Team Lead</p>
+            </div>
+            
+            <div class="member">
+                <i class="fas fa-user-graduate"></i>
+                <h3>AMAN VEER SINGH GILL</h3>
+                <p>Developer</p>
+            </div>
+            
+            <div class="member">
+                <i class="fas fa-user-astronaut"></i>
+                <h3>VINAMRA DUTTA 
+                </h3>
+                <p>Designer</p>
+            </div>
+            
+            <div class="member">
+                <i class="fas fa-user-ninja"></i>
+                <h3>SUBHAM KUMAR</h3>
+                <p>Researcher</p>
+            </div>
+        </div>
+        
+        <a href="f.html" class="next-btn">
+            View Project Details <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+</body>
+</html>
